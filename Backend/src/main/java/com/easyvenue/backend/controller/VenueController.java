@@ -24,6 +24,7 @@ public class VenueController {
     private VenueService venueService;
 
     @GetMapping
+    @PreAuthorize("hasRole('VENUE_USER")
     public List<Venue> getAllVenues() {
         return venueService.getAllVenues();
     }
@@ -67,32 +68,47 @@ public class VenueController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteVenue(@PathVariable Long id) {
-        venueService.deleteVenue(id);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasRole('VENUE_ADMIN")
+    public ResponseEntity<Void> deleteVenue(@PathVariable Long id,
+                                            @AuthenticationPrincipal User currentUser) {
+        try{
+            venueService.deleteMyVenue(id,currentUser);
+            return ResponseEntity.noContent().build();
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('VENUE_ADMIN')")
     public ResponseEntity<Venue> updateVenue(@PathVariable Long id,
-                                             @RequestBody Venue updatedVenue) {
+                                             @RequestBody Venue updatedVenue,
+                                             @AuthenticationPrincipal User currentUser) {
         try {
-            Venue updated = venueService.updateVenue(id, updatedVenue);
+            Venue updated = venueService.updateMyVenue(id, updatedVenue, currentUser);
             return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PutMapping("/{id}/availability")
+    @PreAuthorize("hasRole('VENUE_ADMIN')")
     public ResponseEntity<Venue> updateAvailability(@PathVariable Long id,
-                                                    @RequestBody AvailabilityUpdateRequest request) {
+                                                    @RequestBody AvailabilityUpdateRequest request,
+                                                    @AuthenticationPrincipal User currentUser) {
         try {
-            Venue updated = venueService.updateAvailability(
+            Venue updated = venueService.updateMyAvailability(
                     id,
                     request.getBlockDates(),
-                    request.getUnblockDates()
+                    request.getUnblockDates(),
+                    currentUser
             );
             return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }

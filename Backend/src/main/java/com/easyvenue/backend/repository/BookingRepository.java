@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findTop10ByOrderByCreatedAtDesc();
+    List<Booking> findTop10ByOrderByCreatedAtDesc(User booker);
     List<Booking> findByBooker(User booker);
 
     @Query("SELECT b FROM Booking b WHERE b.venue.id = :venueId " +

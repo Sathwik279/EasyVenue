@@ -42,17 +42,25 @@ public class VenueService {
                 .filter(Venue::getIsActive);
     }
 
-    public void deleteVenue(Long id) {
-        Optional<Venue> venue = venueRepository.findById(id);
-        if (venue.isPresent()) {
-            venue.get().setIsActive(false);
-            venueRepository.save(venue.get());
+    public void deleteMyVenue(Long id, User currentUser) {
+        Venue venue = venueRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Venue not found"));
+
+        if (!venue.getAdmin().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("You can only delete your own venues");
         }
+
+        venue.setIsActive(false);
+        venueRepository.save(venue);
     }
 
-    public Venue updateVenue(Long id, Venue updatedVenue) {
+    public Venue updateMyVenue(Long id, Venue updatedVenue, User currentUser) {
         return venueRepository.findById(id)
                 .map(existingVenue -> {
+                    if (!existingVenue.getAdmin().getId().equals(currentUser.getId())) {
+                        throw new IllegalArgumentException("You can only update your own venues");
+                    }
+
                     existingVenue.setName(updatedVenue.getName());
                     existingVenue.setLocation(updatedVenue.getLocation());
                     existingVenue.setCapacity(updatedVenue.getCapacity());
@@ -63,19 +71,21 @@ public class VenueService {
                 .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + id));
     }
 
-    public Venue updateAvailability(Long id, List<LocalDate> blockDates, List<LocalDate> unblockDates) {
+    public Venue updateMyAvailability(Long id, List<LocalDate> blockDates,
+                                      List<LocalDate> unblockDates, User currentUser) {
         return venueRepository.findById(id)
                 .map(venue -> {
+                    if (!venue.getAdmin().getId().equals(currentUser.getId())) {
+                        throw new IllegalArgumentException("You can only update availability of your own venues");
+                    }
+
                     Set<LocalDate> unavailableSet = new HashSet<>(venue.getUnavailableDates());
 
                     if (blockDates != null && !blockDates.isEmpty()) {
                         unavailableSet.addAll(blockDates);
-                        System.out.println("🚫 Blocked " + blockDates.size() + " dates for venue: " + venue.getName());
                     }
-
                     if (unblockDates != null && !unblockDates.isEmpty()) {
                         unavailableSet.removeAll(unblockDates);
-                        System.out.println("✅ Unblocked " + unblockDates.size() + " dates for venue: " + venue.getName());
                     }
 
                     venue.setUnavailableDates(List.copyOf(unavailableSet));
@@ -83,7 +93,6 @@ public class VenueService {
                 })
                 .orElseThrow(() -> new RuntimeException("Venue not found with ID: " + id));
     }
-
 
     public boolean isVenueAvailable(Long venueId, LocalDate date) {
         Optional<Venue> venue = getVenueById(venueId);

@@ -49,22 +49,22 @@ public class BookingService {
         return savedBooking;
     }
 
-    public List<Booking> getRecentBookings() {
-        List<Booking> bookings = bookingRepository.findTop10ByOrderByCreatedAtDesc();
+    public List<Booking> getRecentBookings(User currentUser) {
+        List<Booking> bookings = bookingRepository.findTop10ByOrderByCreatedAtDesc(currentUser);
         System.out.println("📊 Found " + bookings.size() + " recent bookings");
         return bookings;
     }
 
-    public Optional<Booking> getBookingById(Long id) {
-        return bookingRepository.findById(id);
+    public Optional<Booking> getBookingById(Long id,User currentUser) {
+        return bookingRepository.findById(id,currentUser);
     }
 
-    public void deleteBooking(Long id) {
-        bookingRepository.deleteById(id);
+    public void deleteBooking(Long id,User currentUser) {
+        bookingRepository.deleteById(id,currentUser);
     }
 
-    public Booking updateBooking(Long id, Booking updatedBooking) {
-        return bookingRepository.findById(id)
+    public Booking updateBooking(Long id, Booking updatedBooking,User currentUser) {
+        return bookingRepository.findById(id,currentUser)
                 .map(existingBooking -> {
                     existingBooking.setBookingDate(updatedBooking.getBookingDate());
                     existingBooking.setHoursBooked(updatedBooking.getHoursBooked());

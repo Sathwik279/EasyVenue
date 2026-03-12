@@ -54,27 +54,27 @@ public class BookingController {
     }
 
     @GetMapping("/recent")
-    public List<Booking> getRecentBookings() {
-        return bookingService.getRecentBookings(); // This returns List<Booking> directly
+    public List<Booking> getRecentBookings(@AuthenticationPrincipal User currentUser) {
+        return bookingService.getRecentBookings(currentUser); // This returns List<Booking> directly
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
-        return bookingService.getBookingById(id)
+    public ResponseEntity<Booking> getBookingById(@PathVariable Long id,@AuthenticationPrincipal User currentUser) {
+        return bookingService.getBookingById(id,currentUser)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
-        bookingService.deleteBooking(id);
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long id,@AuthenticationPrincipal User currentUser) {
+        bookingService.deleteBooking(id,currentUser);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody Booking updatedBooking) {
+    public ResponseEntity<Booking> updateBooking(@PathVariable Long id, @RequestBody Booking updatedBooking,@AuthenticationPrincipal User currentUser) {
         try {
-            Booking updated = bookingService.updateBooking(id, updatedBooking);
+            Booking updated = bookingService.updateBooking(id, updatedBooking,currentUser);
             return ResponseEntity.ok(updated);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
