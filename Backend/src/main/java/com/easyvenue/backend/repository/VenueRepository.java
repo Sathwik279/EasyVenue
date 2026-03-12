@@ -1,5 +1,6 @@
 package com.easyvenue.backend.repository;
 
+import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public interface VenueRepository extends JpaRepository<Venue, Long> {
 
     List<Venue> findByIsActiveTrueOrderByCreatedAtDesc();
+    List<Venue> findByOwner(User user);// auto handled by spring
 
     @Query("SELECT v FROM Venue v WHERE v.isActive = true ORDER BY v.createdAt DESC")
     List<Venue> findAllActiveVenues();

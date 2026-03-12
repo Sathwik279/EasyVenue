@@ -29,8 +29,11 @@ public class Venue {
     @Column(nullable = false)
     private Double pricePerHour;
 
-    @Column(nullable = false)
-    private String createdBy;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id",nullable = false)
+    private User admin;
 
     @Column(nullable = false)
     private Boolean isActive = true;
@@ -52,14 +55,20 @@ public class Venue {
     }
 
     public Venue(String name, String location, Integer capacity,
-                 Double pricePerHour, String createdBy) {
+                 Double pricePerHour, User user) {
         this.name = name;
         this.location = location;
         this.capacity = capacity;
         this.pricePerHour = pricePerHour;
-        this.createdBy = createdBy;
+        this.admin = user;
+    }
+    public User getAdmin() {
+        return admin;
     }
 
+    public void setAdmin(User admin) {
+        this.admin = admin;
+    }
     public Long getId() {
         return id;
     }
@@ -98,14 +107,6 @@ public class Venue {
 
     public void setPricePerHour(Double pricePerHour) {
         this.pricePerHour = pricePerHour;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
     }
 
     public Boolean getIsActive() {

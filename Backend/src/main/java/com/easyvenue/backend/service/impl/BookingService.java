@@ -62,8 +62,6 @@ public class BookingService {
     public Booking updateBooking(Long id, Booking updatedBooking) {
         return bookingRepository.findById(id)
                 .map(existingBooking -> {
-                    existingBooking.setUserName(updatedBooking.getUserName());
-                    existingBooking.setUserEmail(updatedBooking.getUserEmail());
                     existingBooking.setBookingDate(updatedBooking.getBookingDate());
                     existingBooking.setHoursBooked(updatedBooking.getHoursBooked());
 

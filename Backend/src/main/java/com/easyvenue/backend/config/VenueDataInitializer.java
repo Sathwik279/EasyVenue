@@ -1,5 +1,6 @@
 package com.easyvenue.backend.config;
 
+import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import com.easyvenue.backend.repository.BookingRepository;
 import com.easyvenue.backend.repository.VenueRepository;
@@ -121,15 +122,17 @@ public class VenueDataInitializer implements CommandLineRunner {
     private Venue createVenue(String name, String location, Integer capacity,
                               Double pricePerHour, List<LocalDate> unavailableDates) {
         Venue venue = new Venue();
+        User user = new User(
+                0L,"Sathwik","228w1a0554@vrsec.ac.in","6116", User.Role.ADMIN
+        );
+
 
         venue.setName(name);
         venue.setLocation(location);
         venue.setCapacity(capacity);
         venue.setPricePerHour(pricePerHour);
-
-        venue.setCreatedBy("Satyajeet Jena");
         venue.setIsActive(true);
-
+        venue.setAdmin(user);
         venue.setUnavailableDates(unavailableDates != null ? unavailableDates : new ArrayList<>());
 
         return venue;

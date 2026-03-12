@@ -6,10 +6,6 @@ public class BookingRequest {
 
     private Long venueId;
 
-    private String userName;
-
-    private String userEmail;
-
     private LocalDate bookingDate;
 
     private Integer hoursBooked;
@@ -17,11 +13,9 @@ public class BookingRequest {
     public BookingRequest() {
     }
 
-    public BookingRequest(Long venueId, String userName, String userEmail,
+    public BookingRequest(Long venueId,
                           LocalDate bookingDate, Integer hoursBooked) {
         this.venueId = venueId;
-        this.userName = userName;
-        this.userEmail = userEmail;
         this.bookingDate = bookingDate;
         this.hoursBooked = hoursBooked;
     }
@@ -32,22 +26,6 @@ public class BookingRequest {
 
     public void setVenueId(Long venueId) {
         this.venueId = venueId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
     }
 
     public LocalDate getBookingDate() {
@@ -69,8 +47,6 @@ public class BookingRequest {
     public String toString() {
         return "BookingRequest{" +
                 "venueId=" + venueId +
-                ", userName='" + userName + '\'' +
-                ", userEmail='" + userEmail + '\'' +
                 ", bookingDate=" + bookingDate +
                 ", hoursBooked=" + hoursBooked +
                 '}';

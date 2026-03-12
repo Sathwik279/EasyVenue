@@ -1,5 +1,6 @@
 package com.easyvenue.backend.service.impl;
 
+import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import com.easyvenue.backend.repository.VenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,13 @@ public class VenueService {
         }
 
         return venueRepository.save(venue);
+    }
+
+    public List<Venue> getAdminVenues(User currentUser){
+        if(currentUser.getRole() != User.Role.VENUE_ADMIN){
+            throw new IllegalArgumentException("Only Venue admin can view their own venues");
+        }
+        return venueRepository.findByOwner(currentUser);
     }
 
     public Optional<Venue> getVenueById(Long id) {

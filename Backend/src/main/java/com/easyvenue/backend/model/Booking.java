@@ -1,10 +1,21 @@
 package com.easyvenue.backend.model;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "bookings")
@@ -18,11 +29,9 @@ public class Booking {
     @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
-    @Column(nullable = false)
-    private String userName;
-
-    @Column(nullable = false)
-    private String userEmail;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="user_id",nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private LocalDate bookingDate;
@@ -43,14 +52,13 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(Venue venue, String userName, String userEmail,
+    public Booking(Venue venue, User user,
                    LocalDate bookingDate, Integer hoursBooked, Double totalCost) {
         this.venue = venue;
-        this.userName = userName;
-        this.userEmail = userEmail;
         this.bookingDate = bookingDate;
         this.hoursBooked = hoursBooked;
         this.totalCost = totalCost;
+        this.user = user;
     }
 
     public Long getId() {
@@ -69,21 +77,11 @@ public class Booking {
         this.venue = venue;
     }
 
-    public String getUserName() {
-        return userName;
-    }
+    public User getUser() {return user;}
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+    public void setUser(User user) {this.user = user;}
 
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
+    public void setCreatedAt(LocalDateTime createdAt) {this.createdAt = createdAt;}
 
     public LocalDate getBookingDate() {
         return bookingDate;
@@ -126,7 +124,7 @@ public class Booking {
         return "Booking{" +
                 "id=" + id +
                 ", venue=" + (venue != null ? venue.getName() : "null") +
-                ", userName='" + userName + '\'' +
+                ", userId='" + user + '\'' +
                 ", bookingDate=" + bookingDate +
                 ", hoursBooked=" + hoursBooked +
                 ", status=" + status +

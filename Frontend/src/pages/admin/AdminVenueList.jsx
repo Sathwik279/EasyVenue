@@ -1,6 +1,6 @@
 // src/pages/admin/AdminVenueList.jsx
 import { useQuery } from "@tanstack/react-query";
-import { getAllVenues } from "../../services/venueService";
+import { getAdminVenues } from "../../services/venueService";
 import { Link } from "react-router-dom";
 import {
   Plus,
@@ -17,7 +17,7 @@ export default function AdminVenueList() {
   // Enhanced query with caching and retry logic for better UX
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminVenues"],
-    queryFn: getAllVenues,
+    queryFn: getAdminVenues,
     staleTime: 5 * 60 * 1000, // Cache data for 5 minutes to reduce API calls
     retry: 3, // Retry failed requests 3 times before showing error
   });

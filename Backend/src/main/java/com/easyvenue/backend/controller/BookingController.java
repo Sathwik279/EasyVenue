@@ -2,11 +2,13 @@ package com.easyvenue.backend.controller;
 
 import com.easyvenue.backend.dto.BookingRequest;
 import com.easyvenue.backend.model.Booking;
+import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import com.easyvenue.backend.service.impl.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,13 +28,13 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
+    public ResponseEntity<?> createBooking(@RequestBody BookingRequest request,
+            @AuthenticationPrincipal User currentUser) {
         try {
             Booking booking = new Booking();
-            booking.setUserName(request.getUserName());
-            booking.setUserEmail(request.getUserEmail());
             booking.setBookingDate(request.getBookingDate());
             booking.setHoursBooked(request.getHoursBooked());
+            booking.setUser(currentUser);
 
             // Create a venue object with ID
             Venue venue = new Venue();
