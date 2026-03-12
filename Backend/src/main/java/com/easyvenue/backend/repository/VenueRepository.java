@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface VenueRepository extends JpaRepository<Venue, Long> {
 
     List<Venue> findByIsActiveTrueOrderByCreatedAtDesc();
-    List<Venue> findByOwner(User user);// auto handled by spring
+    List<Venue> findByAdmin(User user);// auto handled by spring
 
     @Query("SELECT v FROM Venue v WHERE v.isActive = true ORDER BY v.createdAt DESC")
     List<Venue> findAllActiveVenues();

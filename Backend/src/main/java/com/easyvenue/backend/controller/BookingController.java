@@ -8,6 +8,7 @@ import com.easyvenue.backend.service.impl.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +23,10 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @GetMapping
-    public List<Booking> getAllBookings() {
-        return bookingService.getAllBookings();
+    @GetMapping("/getMyBookings")
+    @PreAuthorize("hasRole('VENUE_USER')")
+    public List<Booking> getMyBookings(@AuthenticationPrincipal User currentUser) {
+        return bookingService.getMyBookings(currentUser);
     }
 
     @PostMapping

@@ -1,6 +1,7 @@
 package com.easyvenue.backend.repository;
 
 import com.easyvenue.backend.model.Booking;
+import com.easyvenue.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,7 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findTop10ByOrderByCreatedAtDesc();
+    List<Booking> findByBooker(User booker);
 
     @Query("SELECT b FROM Booking b WHERE b.venue.id = :venueId " +
             "AND b.bookingDate = :bookingDate " +

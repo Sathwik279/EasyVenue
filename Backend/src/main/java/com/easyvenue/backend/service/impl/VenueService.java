@@ -34,7 +34,7 @@ public class VenueService {
         if(currentUser.getRole() != User.Role.VENUE_ADMIN){
             throw new IllegalArgumentException("Only Venue admin can view their own venues");
         }
-        return venueRepository.findByOwner(currentUser);
+        return venueRepository.findByAdmin(currentUser);
     }
 
     public Optional<Venue> getVenueById(Long id) {

@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 
 
 @Entity
-@Table(name="user")
+@Table(name="users")
 public class User{
 
     public User(Long id, String name, String email, String password, Role role) {
         this.id = id;
-        this.name = name;
+        this.username = name;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -21,7 +21,7 @@ public class User{
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String username;
 
     @Column(nullable = false)
     private String email;
@@ -41,11 +41,11 @@ public class User{
     }
 
     public String getName() {
-        return name;
+        return username;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.username = name;
     }
 
     public String getEmail() {

@@ -1,6 +1,7 @@
 package com.easyvenue.backend.service.impl;
 
 import com.easyvenue.backend.model.Booking;
+import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import com.easyvenue.backend.repository.BookingRepository;
 import com.easyvenue.backend.repository.VenueRepository;
@@ -21,8 +22,11 @@ public class BookingService {
     @Autowired
     private VenueRepository venueRepository;
 
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+    public List<Booking> getMyBookings(User currentUser) {
+        if (currentUser.getRole() != User.Role.VENUE_USER) {
+            throw new IllegalArgumentException("Only VENUE_USER can view their own bookings");
+        }
+        return bookingRepository.findByBooker(currentUser);
     }
 
     @Transactional
