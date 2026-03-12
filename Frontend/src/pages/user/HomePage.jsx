@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 import {
   MapPin,
   Calendar,
@@ -9,6 +10,7 @@ import {
 } from "lucide-react";
 
 function HomePage() {
+  const { isAuthenticated, hasAnyRole } = useAuth();
   return (
     <>
       <div className="py-25 mt-15">
@@ -31,63 +33,58 @@ function HomePage() {
             wedding, we've got the right space for you
           </p>
 
-          {/* PRIMARY CTA BUTTONS */}
+          {/* PRIMARY CTA BUTTONS - role-based visibility */}
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-3">
-            {/* View Venues Button - Primary Action */}
-            <Link to="/venues">
-              <button className="group relative px-8 py-4 rounded-lg bg-blue-600 text-white font-semibold tracking-wide uppercase text-sm border border-blue-700/50 hover:border-blue-500 transition-all duration-300 ease-in-out hover:bg-blue-700 shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] active:translate-y-1 active:shadow-[0_0_10px_rgba(37,99,235,0.4)] active:scale-[0.98]">
-                <span className="flex items-center gap-3 relative">
-                  {/* Calendar icon for venue browsing */}
-                  <svg
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5 transition-transform duration-300 group-hover:scale-110"
-                  >
-                    <path d="M19 3h-2V1h-2v2H9V1H7v2H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zm0-12H5V5h14v2z" />
-                  </svg>
-                  View Venues
-                  {/* Arrow icon for direction indication */}
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 transition-all duration-300 group-hover:translate-x-1"
-                  >
-                    <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z" />
-                  </svg>
-                </span>
-                {/* Glowing effect layers */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-700/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg rounded-lg"></div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-blue-700 opacity-15 group-hover:opacity-25 blur-lg rounded-lg transition-all duration-300 group-hover:blur-xl"></div>
-              </button>
-            </Link>
+            {/* View Venues - only for VENUE_USER (not for admins) */}
+            {(isAuthenticated ? hasAnyRole("VENUE_USER") : true) && (
+              <Link to="/venues">
+                <button className="group relative px-8 py-4 rounded-lg bg-blue-600 text-white font-semibold tracking-wide uppercase text-sm border border-blue-700/50 hover:border-blue-500 transition-all duration-300 ease-in-out hover:bg-blue-700 shadow-[0_0_15px_rgba(37,99,235,0.25)] hover:shadow-[0_0_25px_rgba(37,99,235,0.4)] active:translate-y-1 active:shadow-[0_0_10px_rgba(37,99,235,0.4)] active:scale-[0.98]">
+                  <span className="flex items-center gap-3 relative">
+                    <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 transition-transform duration-300 group-hover:scale-110">
+                      <path d="M19 3h-2V1h-2v2H9V1H7v2H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zm0-12H5V5h14v2z" />
+                    </svg>
+                    View Venues
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-all duration-300 group-hover:translate-x-1">
+                      <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6l6 6-6 6-1.41-1.41z" />
+                    </svg>
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-700/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg rounded-lg"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-blue-700 opacity-15 group-hover:opacity-25 blur-lg rounded-lg transition-all duration-300 group-hover:blur-xl"></div>
+                </button>
+              </Link>
+            )}
 
-            {/* Admin Panel Button - Secondary Action */}
-            <Link to="/admin/venues">
-              <button className="group relative px-8 py-4 rounded-lg bg-gray-900 text-gray-200 font-semibold tracking-wide uppercase text-sm border border-gray-600/50 hover:border-gray-500 transition-all duration-300 ease-in-out hover:text-white hover:bg-black shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:shadow-[0_0_25px_rgba(75,85,99,0.4)] active:translate-y-1 active:shadow-[0_0_10px_rgba(75,85,99,0.4)] active:scale-[0.98]">
-                <span className="flex items-center gap-3 relative">
-                  {/* Star icon for admin privileges */}
-                  <svg
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    className="w-5 h-5 transition-transform duration-300 group-hover:rotate-75"
-                  >
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Admin Panel
-                  {/* Checkmark icon for admin access */}
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-4 h-4 transition-all duration-300 group-hover:scale-125"
-                  >
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                  </svg>
-                </span>
-                {/* Glowing effect layers */}
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-600/20 to-gray-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg rounded-lg"></div>
-                <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 opacity-15 group-hover:opacity-25 blur-lg rounded-lg transition-all duration-300 group-hover:blur-xl"></div>
-              </button>
-            </Link>
+            {/* Admin Panel - only for VENUE_ADMIN / ADMIN (hidden from users) */}
+            {/* My Bookings - only for VENUE_USER */}
+            {isAuthenticated && hasAnyRole("VENUE_USER") && (
+              <Link to="/my-bookings">
+                <button className="group relative px-8 py-4 rounded-lg bg-green-600 text-white font-semibold tracking-wide uppercase text-sm border border-green-700/50 hover:border-green-500 transition-all duration-300 ease-in-out hover:bg-green-700 shadow-[0_0_15px_rgba(22,163,74,0.25)] hover:shadow-[0_0_25px_rgba(22,163,74,0.4)] active:translate-y-1 active:scale-[0.98]">
+                  <span className="flex items-center gap-3 relative">
+                    <Calendar className="w-5 h-5" />
+                    My Bookings
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </button>
+              </Link>
+            )}
+
+            {isAuthenticated && hasAnyRole("VENUE_ADMIN", "ADMIN") && (
+              <Link to="/admin/venues">
+                <button className="group relative px-8 py-4 rounded-lg bg-gray-900 text-gray-200 font-semibold tracking-wide uppercase text-sm border border-gray-600/50 hover:border-gray-500 transition-all duration-300 ease-in-out hover:text-white hover:bg-black shadow-[0_0_15px_rgba(75,85,99,0.25)] hover:shadow-[0_0_25px_rgba(75,85,99,0.4)] active:translate-y-1 active:shadow-[0_0_10px_rgba(75,85,99,0.4)] active:scale-[0.98]">
+                  <span className="flex items-center gap-3 relative">
+                    <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5 transition-transform duration-300 group-hover:rotate-75">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Admin Panel
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 transition-all duration-300 group-hover:scale-125">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-600/20 to-gray-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg rounded-lg"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-gray-600 to-gray-800 opacity-15 group-hover:opacity-25 blur-lg rounded-lg transition-all duration-300 group-hover:blur-xl"></div>
+                </button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

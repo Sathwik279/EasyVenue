@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.easyvenue.backend.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Component
 public class VenueDataInitializer implements CommandLineRunner {
@@ -21,6 +23,12 @@ public class VenueDataInitializer implements CommandLineRunner {
 
     @Autowired
     private BookingRepository bookingRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
@@ -39,6 +47,7 @@ public class VenueDataInitializer implements CommandLineRunner {
         System.out.println("🏢 Database is empty. Initializing venue data...");
 
         try {
+            initializeUsers();
             initializeVenues();
             System.out.println("✅ Venue data initialized successfully!");
             System.out.println("🎯 Ready for booking process testing!");
@@ -60,6 +69,16 @@ public class VenueDataInitializer implements CommandLineRunner {
         venueRepository.saveAll(venues);
         System.out.println("🏢 Successfully created " + venues.size() + " sample venues");
     }
+
+    private void initializeUsers() {
+        User user = new User();
+        user.setName("Sathwik");
+        user.setEmail("228w1a0554@vrsec.ac.in");
+        user.setPassword(passwordEncoder.encode("6116"));
+        user.setRole(User.Role.VENUE_ADMIN);
+        userRepository.save(user);
+    }
+
 
     private List<Venue> createSampleVenues() {
         return Arrays.asList(
@@ -122,10 +141,8 @@ public class VenueDataInitializer implements CommandLineRunner {
     private Venue createVenue(String name, String location, Integer capacity,
                               Double pricePerHour, List<LocalDate> unavailableDates) {
         Venue venue = new Venue();
-        User user = new User(
-                0L,"Sathwik","228w1a0554@vrsec.ac.in","6116", User.Role.ADMIN
-        );
-
+        
+        User user = userRepository.findByEmail("228w1a0554@vrsec.ac.in").orElseThrow(() -> new RuntimeException("User not found"));
 
         venue.setName(name);
         venue.setLocation(location);

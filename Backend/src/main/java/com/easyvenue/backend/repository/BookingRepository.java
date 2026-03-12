@@ -14,8 +14,11 @@ import java.util.Optional;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    List<Booking> findTop10ByOrderByCreatedAtDesc(User booker);
-    List<Booking> findByBooker(User booker);
+    List<Booking> findTop10ByUserOrderByCreatedAtDesc(User user);
+    List<Booking> findByUser(User user);
+
+    void deleteByIdAndUser(Long id, User user);
+    Optional<Booking> findByIdAndUser(Long id, User user);
 
     @Query("SELECT b FROM Booking b WHERE b.venue.id = :venueId " +
             "AND b.bookingDate = :bookingDate " +
@@ -27,7 +30,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     List<Booking> findByVenueIdOrderByCreatedAtDesc(Long venueId);
 
-    List<Booking> findByUserEmailOrderByCreatedAtDesc(String userEmail);
 
     @Query("SELECT b FROM Booking b WHERE b.bookingDate BETWEEN :startDate AND :endDate " +
             "ORDER BY b.bookingDate ASC")

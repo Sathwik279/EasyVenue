@@ -162,7 +162,10 @@ export default function AvailabilityForm() {
                   <div>
                     <p className="text-red-800 font-medium">Update failed</p>
                     <p className="text-red-600 text-sm">
-                      {error.message || "Please try again later"}
+                      {error.response?.data?.error ||
+                        error.response?.data?.message ||
+                        error.message ||
+                        "Please try again later"}
                     </p>
                   </div>
                 </div>

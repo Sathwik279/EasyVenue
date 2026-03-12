@@ -40,8 +40,6 @@ public interface VenueRepository extends JpaRepository<Venue, Long> {
             @Param("maxPrice") Double maxPrice
     );
 
-    List<Venue> findByCreatedByOrderByCreatedAtDesc(String createdBy);
-
     @Query("SELECT v FROM Venue v WHERE LOWER(v.name) = LOWER(:name)")
     Optional<Venue> findByNameIgnoreCase(@Param("name") String name);
 

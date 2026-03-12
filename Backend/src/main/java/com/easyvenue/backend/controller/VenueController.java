@@ -24,7 +24,7 @@ public class VenueController {
     private VenueService venueService;
 
     @GetMapping
-    @PreAuthorize("hasRole('VENUE_USER")
+    @PreAuthorize("hasRole('VENUE_USER')")
     public List<Venue> getAllVenues() {
         return venueService.getAllVenues();
     }
@@ -68,7 +68,7 @@ public class VenueController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('VENUE_ADMIN")
+    @PreAuthorize("hasRole('VENUE_ADMIN')")
     public ResponseEntity<Void> deleteVenue(@PathVariable Long id,
                                             @AuthenticationPrincipal User currentUser) {
         try{

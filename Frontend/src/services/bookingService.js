@@ -7,6 +7,10 @@ export const createBooking = (bookingData) => {
   return apiClient.post("/bookings", bookingData).then((res) => res.data);
 };
 
-// ← FIX: Get recent bookings - Spring Boot returns array directly
+// Get recent bookings (admin's own bookings or context-specific)
 export const getRecentBookings = () =>
-  apiClient.get("/bookings/recent").then((res) => res.data); // Spring Boot returns array directly, not nested in 'data'
+  apiClient.get("/bookings/recent").then((res) => res.data);
+
+// Get current user's bookings (VENUE_USER only)
+export const getMyBookings = () =>
+  apiClient.get("/bookings/getMyBookings").then((res) => res.data);

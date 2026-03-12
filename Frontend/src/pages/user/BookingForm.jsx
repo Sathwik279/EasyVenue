@@ -1,11 +1,9 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createBooking } from "../../services/bookingService";
+import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { getVenueById } from "../../services/venueService";
 import { useState } from "react";
+import { useCreateBooking } from "../../hooks/useBookingMutation";
 import {
-  User,
-  Mail,
   CalendarDays,
   Clock,
   Loader2,
@@ -25,25 +23,8 @@ export default function BookingForm() {
   // ===== FORM STATE MANAGEMENT =====
   // Centralized form state with default values
   const [form, setForm] = useState({
-    userName: "",
-    userEmail: "",
     bookingDate: "",
-    hoursBooked: 1, // Default to 1 hour minimum
-  });
-
-  // ===== BOOKING MUTATION =====
-  // Handle booking submission with success/error states
-  const mutation = useMutation({
-    mutationFn: createBooking,
-    onSuccess: (response) => {
-      console.log("Booking successful:", response);
-      // Navigate to confirmation page on success
-      navigate(`/book/${venueId}/confirm`);
-    },
-    onError: (error) => {
-      console.error("Booking failed:", error);
-      // Error handling is managed through mutation.error in UI
-    },
+    hoursBooked: 1,
   });
 
   // ===== VENUE DATA FETCHING =====
@@ -71,23 +52,25 @@ export default function BookingForm() {
   // Handle form submission with validation
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Basic client-side validation
-    if (!form.userName.trim() || !form.userEmail.trim() || !form.bookingDate) {
-      return; // Form validation will show required field errors
-    }
-
-    // Submit booking with parsed venueId
-    mutation.mutate({
-      ...form,
-      venueId: parseInt(venueId),
-      hoursBooked: parseInt(form.hoursBooked) || 1, // Ensure it's a valid number
-    });
+    if (!form.bookingDate) return;
+    mutation.mutate(
+      {
+        venueId: parseInt(venueId, 10),
+        bookingDate: form.bookingDate,
+        hoursBooked: parseInt(form.hoursBooked, 10) || 1,
+      },
+      {
+        onSuccess: () => {
+          navigate(`/book/${venueId}/confirm`);
+        },
+      },
+    );
   };
 
   // ===== COMPUTED VALUES =====
   // Safe venue data access with fallback
   const venue = data?.data || {};
+  const mutation = useCreateBooking(venue);
 
   // Calculate total price with fallback handling
   const pricePerHour = venue.pricePerHour || 0;
@@ -197,65 +180,6 @@ export default function BookingForm() {
               {/* ===== BOOKING FORM ===== */}
               <div className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* ===== PERSONAL INFORMATION SECTION ===== */}
-                  <div>
-                    <h3 className="text-md font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                      <User className="w-5 h-5 text-blue-600" />
-                      Personal Information
-                    </h3>
-
-                    {/* Name and Email Grid */}
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {/* Full Name Field */}
-                      <div>
-                        <label
-                          htmlFor="userName"
-                          className="block text-sm font-medium text-slate-700 mb-2"
-                        >
-                          Full Name <span className="text-red-600">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            id="userName"
-                            name="userName"
-                            type="text"
-                            placeholder="Enter your full name"
-                            className="w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors"
-                            value={form.userName}
-                            onChange={handleChange}
-                            required
-                            minLength={2} // Minimum name length
-                            maxLength={50} // Prevent overly long names
-                          />
-                          <User className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
-                        </div>
-                      </div>
-
-                      {/* Email Field */}
-                      <div>
-                        <label
-                          htmlFor="userEmail"
-                          className="block text-sm font-medium text-slate-700 mb-2"
-                        >
-                          Email Address <span className="text-red-600">*</span>
-                        </label>
-                        <div className="relative">
-                          <input
-                            id="userEmail"
-                            name="userEmail"
-                            type="email"
-                            placeholder="your@email.com"
-                            className="w-full pl-10 pr-3 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition-colors"
-                            value={form.userEmail}
-                            onChange={handleChange}
-                            required
-                          />
-                          <Mail className="absolute left-3 top-3.5 w-5 h-5 text-slate-500" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   {/* ===== BOOKING DETAILS SECTION ===== */}
                   <div>
                     <h3 className="text-md font-semibold text-slate-900 mb-4 flex items-center gap-2">
@@ -344,15 +268,13 @@ export default function BookingForm() {
                   <button
                     type="submit"
                     disabled={
-                      mutation.isLoading ||
-                      !form.userName.trim() ||
-                      !form.userEmail.trim() ||
+                      mutation.isPending ||
                       !form.bookingDate
                     }
                     className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Submit booking form"
                   >
-                    {mutation.isLoading ? (
+                    {mutation.isPending ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
                         Processing...

@@ -15,6 +15,8 @@ public class User{
         this.role = role;
     }
 
+    public User() {
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

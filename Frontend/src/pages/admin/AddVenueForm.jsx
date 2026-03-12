@@ -1,15 +1,12 @@
-/* eslint-disable no-unused-vars */
-import { useMutation } from "@tanstack/react-query";
-import { createVenue } from "../../services/venueService";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useCreateVenue } from "../../hooks/useBookingMutation";
 import {
   PlusCircle,
   Building2,
   MapPin,
   Users,
   IndianRupee,
-  User,
   ArrowLeft,
   Save,
   AlertCircle,
@@ -23,13 +20,9 @@ export default function AddVenueForm() {
     location: "",
     capacity: "",
     pricePerHour: "",
-    createdBy: "",
   });
 
-  const { mutate, isLoading, error } = useMutation({
-    mutationFn: createVenue,
-    onSuccess: () => navigate("/admin/venues"),
-  });
+  const { mutate, isPending, error } = useCreateVenue();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +47,17 @@ export default function AddVenueForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate(form);
+    mutate(
+      {
+        name: form.name,
+        location: form.location,
+        capacity: parseInt(form.capacity, 10),
+        pricePerHour: parseFloat(form.pricePerHour) || 0,
+      },
+      {
+        onSuccess: () => navigate("/admin/venues"),
+      },
+    );
   };
 
   const formFields = [
@@ -93,13 +96,6 @@ export default function AddVenueForm() {
       min: "0",
       step: "0.01",
     },
-    {
-      name: "createdBy",
-      label: "Created By",
-      placeholder: "Enter user ID or name",
-      icon: User,
-      description: "User responsible for creating this venue",
-    },
   ];
 
   return (
@@ -135,49 +131,43 @@ export default function AddVenueForm() {
           <div className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Form Fields */}
-              {formFields.map(
-                ({
-                  name,
-                  label,
-                  type,
-                  placeholder,
-                  icon: Icon,
-                  description,
-                  min,
-                  max,
-                  step,
-                }) => (
-                  <div key={name} className="space-y-2">
+              {formFields.map((field) => {
+                const IconComponent = field.icon;
+
+                return (
+                  <div key={field.name} className="space-y-2">
                     <label
-                      htmlFor={name}
+                      htmlFor={field.name}
                       className="block text-sm font-semibold text-gray-700"
                     >
-                      {label}
+                      {field.label}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <Icon className="h-5 w-5 text-gray-600" />
+                        <IconComponent className="h-5 w-5 text-gray-600" />
                       </div>
                       <input
-                        id={name}
-                        name={name}
-                        type={type || "text"}
-                        placeholder={placeholder}
-                        value={form[name]}
+                        id={field.name}
+                        name={field.name}
+                        type={field.type || "text"}
+                        placeholder={field.placeholder}
+                        value={form[field.name]}
                         onChange={handleChange}
                         required
-                        min={min}
-                        max={max}
-                        step={step}
+                        min={field.min}
+                        max={field.max}
+                        step={field.step}
                         className={`w-full pl-12 pr-4 py-3 border border-gray-400 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white ${
-                          type === "number" ? "no-spinner" : ""
+                          field.type === "number" ? "no-spinner" : ""
                         }`}
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">{description}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {field.description}
+                    </p>
                   </div>
-                ),
-              )}
+                );
+              })}
 
               {/* Error Message */}
               {error && (
@@ -206,10 +196,10 @@ export default function AddVenueForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isLoading}
+                  disabled={isPending}
                   className="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none cursor-pointer"
                 >
-                  {isLoading ? (
+                  {isPending ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                       Adding Venue...

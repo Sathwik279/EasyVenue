@@ -1,17 +1,18 @@
 package com.easyvenue.backend.service.impl;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.easyvenue.backend.model.Booking;
 import com.easyvenue.backend.model.User;
 import com.easyvenue.backend.model.Venue;
 import com.easyvenue.backend.repository.BookingRepository;
 import com.easyvenue.backend.repository.VenueRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class BookingService {
@@ -23,10 +24,7 @@ public class BookingService {
     private VenueRepository venueRepository;
 
     public List<Booking> getMyBookings(User currentUser) {
-        if (currentUser.getRole() != User.Role.VENUE_USER) {
-            throw new IllegalArgumentException("Only VENUE_USER can view their own bookings");
-        }
-        return bookingRepository.findByBooker(currentUser);
+        return bookingRepository.findByUser(currentUser);
     }
 
     @Transactional
@@ -50,21 +48,21 @@ public class BookingService {
     }
 
     public List<Booking> getRecentBookings(User currentUser) {
-        List<Booking> bookings = bookingRepository.findTop10ByOrderByCreatedAtDesc(currentUser);
+        List<Booking> bookings = bookingRepository.findTop10ByUserOrderByCreatedAtDesc(currentUser);
         System.out.println("📊 Found " + bookings.size() + " recent bookings");
         return bookings;
     }
 
     public Optional<Booking> getBookingById(Long id,User currentUser) {
-        return bookingRepository.findById(id,currentUser);
+        return bookingRepository.findByIdAndUser(id,currentUser);
     }
 
     public void deleteBooking(Long id,User currentUser) {
-        bookingRepository.deleteById(id,currentUser);
+        bookingRepository.deleteByIdAndUser(id,currentUser);
     }
 
     public Booking updateBooking(Long id, Booking updatedBooking,User currentUser) {
-        return bookingRepository.findById(id,currentUser)
+        return bookingRepository.findByIdAndUser(id,currentUser)
                 .map(existingBooking -> {
                     existingBooking.setBookingDate(updatedBooking.getBookingDate());
                     existingBooking.setHoursBooked(updatedBooking.getHoursBooked());

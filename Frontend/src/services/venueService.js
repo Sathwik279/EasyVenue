@@ -1,7 +1,8 @@
 import apiClient from "./apiClient";
 
 // Create new venue (Admin)
-export const createVenue = (venueData) => apiClient.post("/venues", venueData);
+export const createVenue = (venueData) =>
+  apiClient.post("/venues", venueData).then((res) => res.data);
 
 // Get all venues
 export const getAllVenues = () => apiClient.get("/venues");

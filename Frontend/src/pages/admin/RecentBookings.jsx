@@ -267,11 +267,11 @@ export default function RecentBookings() {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-semibold text-gray-900">
-                            {booking.userName}
+                            {booking.user?.name || booking.user?.username || "N/A"}
                           </div>
                           <div className="flex items-center text-xs text-gray-500">
                             <Mail className="h-3 w-3 mr-1" />
-                            {booking.userEmail}
+                            {booking.user?.email || "N/A"}
                           </div>
                         </div>
                       </div>
