@@ -1,18 +1,24 @@
-import apiClient from "./apiClient";
+import { request } from "./httpClient";
 
 // Create new venue (Admin)
 export const createVenue = (venueData) =>
-  apiClient.post("/venues", venueData).then((res) => res.data);
+  request("/venues", {
+    method: "POST",
+    body: venueData,
+  });
 
 // Get all venues
-export const getAllVenues = () => apiClient.get("/venues");
+export const getAllVenues = () => request("/venues");
 
 // Get venue by ID
-export const getVenueById = (id) => apiClient.get(`/venues/${id}`);
+export const getVenueById = (id) => request(`/venues/${id}`);
 
 // For Admin Only
-export const getAdminVenues = () => apiClient.get("/venues/getAdminVenues")
+export const getAdminVenues = () => request("/venues/getAdminVenues");
 
 // Update venue availability (Admin)
 export const updateVenueAvailability = (id, availabilityData) =>
-  apiClient.put(`/venues/${id}/availability`, availabilityData);
+  request(`/venues/${id}/availability`, {
+    method: "PUT",
+    body: availabilityData,
+  });

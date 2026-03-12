@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useCreateVenue } from "../../hooks/useBookingMutation";
+import { useData } from "../../contexts/DataContext";
 import {
   PlusCircle,
   Building2,
@@ -14,6 +14,7 @@ import {
 
 export default function AddVenueForm() {
   const navigate = useNavigate();
+  const { createVenueOptimistic } = useData();
 
   const [form, setForm] = useState({
     name: "",
@@ -21,8 +22,8 @@ export default function AddVenueForm() {
     capacity: "",
     pricePerHour: "",
   });
-
-  const { mutate, isPending, error } = useCreateVenue();
+  const [isPending, setIsPending] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,17 +48,25 @@ export default function AddVenueForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    mutate(
+    setError(null);
+    setIsPending(true);
+    createVenueOptimistic(
       {
         name: form.name,
         location: form.location,
         capacity: parseInt(form.capacity, 10),
         pricePerHour: parseFloat(form.pricePerHour) || 0,
       },
-      {
-        onSuccess: () => navigate("/admin/venues"),
-      },
-    );
+    )
+      .then(() => {
+        navigate("/admin/venues");
+      })
+      .catch((nextError) => {
+        setError(nextError);
+      })
+      .finally(() => {
+        setIsPending(false);
+      });
   };
 
   const formFields = [

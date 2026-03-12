@@ -1,8 +1,7 @@
 // src/pages/admin/AvailabilityForm.jsx
 import { useParams, useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { updateVenueAvailability as updateAvailability } from "../../services/venueService";
 import { useState } from "react";
+import { useData } from "../../contexts/DataContext";
 import {
   CalendarCheck,
   CalendarX2,
@@ -20,15 +19,10 @@ export default function AvailabilityForm() {
   const navigate = useNavigate();
   const [blockDate, setBlockDate] = useState("");
   const [unblockDate, setUnblockDate] = useState("");
-
-  const { mutate, isLoading, error, isSuccess } = useMutation({
-    mutationFn: ({ venueId, updates }) => updateAvailability(venueId, updates),
-    onSuccess: () => {
-      // Clear form after successful update
-      setBlockDate("");
-      setUnblockDate("");
-    },
-  });
+  const { updateAvailabilityForVenue } = useData();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -42,7 +36,22 @@ export default function AvailabilityForm() {
       blockDates: blockDate ? [blockDate] : [],
       unblockDates: unblockDate ? [unblockDate] : [],
     };
-    mutate({ venueId: id, updates: payload });
+    setError(null);
+    setIsSuccess(false);
+    setIsLoading(true);
+
+    updateAvailabilityForVenue(id, payload)
+      .then(() => {
+        setBlockDate("");
+        setUnblockDate("");
+        setIsSuccess(true);
+      })
+      .catch((nextError) => {
+        setError(nextError);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const isFormValid = blockDate || unblockDate;

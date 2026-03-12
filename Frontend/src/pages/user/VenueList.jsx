@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAllVenues } from "../../services/venueService";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useData } from "../../contexts/DataContext";
 import {
   MapPin,
   Users,
@@ -12,18 +12,15 @@ import {
 } from "lucide-react";
 
 export default function VenueList() {
-  // DATA FETCHING
-  // Using React Query for efficient data fetching and caching
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["venues"],
-    queryFn: getAllVenues,
-    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes
-    retry: 3, // Retry failed requests 3 times
-  });
+  const { venues, loading, errors, fetchVenues } = useData();
+
+  useEffect(() => {
+    fetchVenues().catch(() => {});
+  }, [fetchVenues]);
 
   // LOADING STATE
   // Professional loading spinner with proper accessibility
-  if (isLoading) {
+  if (loading.venues) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh]">
         <div className="relative">
@@ -41,6 +38,7 @@ export default function VenueList() {
   }
 
   // ERROR STATE
+  const error = errors.venues;
   const is403 = error?.response?.status === 403;
   const is401 = error?.response?.status === 401;
   if (error) {
@@ -120,7 +118,7 @@ export default function VenueList() {
         {/* VENUES GRID */}
         {/* Responsive grid layout with interactive venue cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {(data?.data || [])
+          {[...venues]
             .sort((a, b) => a.id - b.id)
             ?.map((venue) => (
               <Link
@@ -221,7 +219,7 @@ export default function VenueList() {
 
         {/* EMPTY STATE */}
         {/* Display when no venues are available in the database */}
-        {data?.data?.length === 0 && (
+        {venues.length === 0 && (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100 shadow-lg">
             <div
               className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 

@@ -1,6 +1,6 @@
+import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getVenueById } from "../../services/venueService";
+import { useData } from "../../contexts/DataContext";
 import {
   MapPin,
   Users,
@@ -16,16 +16,17 @@ export default function VenueDetails() {
   // ROUTE PARAMETERS
   // Extract venue ID from URL parameters for data fetching
   const { venueId } = useParams();
+  const { venueDetails, loading, errors, fetchVenueDetails } = useData();
 
-  // DATA FETCHING
-  // Fetch specific venue data using React Query with caching and error handling
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["venue", venueId],
-    queryFn: () => getVenueById(venueId),
-    enabled: !!venueId, // Only fetch if venueId exists
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    retry: 3, // Retry failed requests
-  });
+  useEffect(() => {
+    if (venueId) {
+      fetchVenueDetails(venueId).catch(() => {});
+    }
+  }, [fetchVenueDetails, venueId]);
+
+  const venue = venueDetails[venueId];
+  const isLoading = loading.venueDetails[venueId];
+  const error = errors.venueDetails[venueId];
 
   // LOADING STATE
   // Display loading spinner while fetching venue details
@@ -48,7 +49,7 @@ export default function VenueDetails() {
 
   // ERROR STATE
   // Handle venue not found or network errors with user-friendly options
-  if (error || !data?.data) {
+  if (error || !venue) {
     return (
       <div className="min-h-[80vh]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -94,8 +95,6 @@ export default function VenueDetails() {
 
   // VENUE DATA
   // Extract venue data from API response with safe access
-  const venue = data.data;
-
   // MAIN RENDER
   return (
     <div className="min-h-[80vh]">

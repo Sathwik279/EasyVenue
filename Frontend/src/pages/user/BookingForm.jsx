@@ -1,8 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
-import { getVenueById } from "../../services/venueService";
-import { useState } from "react";
-import { useCreateBooking } from "../../hooks/useBookingMutation";
+import { useEffect, useState } from "react";
+import { useData } from "../../contexts/DataContext";
 import {
   CalendarDays,
   Clock,
@@ -26,18 +24,16 @@ export default function BookingForm() {
     bookingDate: "",
     hoursBooked: 1,
   });
+  const [submitError, setSubmitError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { venueDetails, loading, errors, fetchVenueDetails, createBookingOptimistic } =
+    useData();
 
-  // ===== VENUE DATA FETCHING =====
-  // Fetch venue details for booking form context
-  const {
-    data,
-    isLoading: venueLoading,
-    error: venueError,
-  } = useQuery({
-    queryKey: ["venue", venueId],
-    queryFn: () => getVenueById(venueId),
-    enabled: !!venueId, // Only run query if venueId exists
-  });
+  useEffect(() => {
+    if (venueId) {
+      fetchVenueDetails(venueId).catch(() => {});
+    }
+  }, [fetchVenueDetails, venueId]);
 
   // ===== FORM HANDLERS =====
   // Handle form input changes with controlled components
@@ -53,24 +49,32 @@ export default function BookingForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.bookingDate) return;
-    mutation.mutate(
+    setSubmitError(null);
+    setIsSubmitting(true);
+    createBookingOptimistic(
       {
         venueId: parseInt(venueId, 10),
         bookingDate: form.bookingDate,
         hoursBooked: parseInt(form.hoursBooked, 10) || 1,
       },
-      {
-        onSuccess: () => {
-          navigate(`/book/${venueId}/confirm`);
-        },
-      },
-    );
+      venue,
+    )
+      .then(() => {
+        navigate(`/book/${venueId}/confirm`);
+      })
+      .catch((error) => {
+        setSubmitError(error);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   // ===== COMPUTED VALUES =====
   // Safe venue data access with fallback
-  const venue = data?.data || {};
-  const mutation = useCreateBooking(venue);
+  const venue = venueDetails[venueId] || {};
+  const venueLoading = loading.venueDetails[venueId];
+  const venueError = errors.venueDetails[venueId];
 
   // Calculate total price with fallback handling
   const pricePerHour = venue.pricePerHour || 0;
@@ -246,7 +250,7 @@ export default function BookingForm() {
 
                   {/* ===== ERROR DISPLAY ===== */}
                   {/* Show booking errors to user */}
-                  {mutation.error && (
+                  {submitError && (
                     <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                       <div className="flex items-start gap-3">
                         <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -255,8 +259,8 @@ export default function BookingForm() {
                             Booking Failed
                           </h4>
                           <p className="text-red-700 text-sm mt-1">
-                            {mutation.error.response?.data?.error ||
-                              mutation.error.response?.data?.message ||
+                            {submitError.response?.data?.error ||
+                              submitError.response?.data?.message ||
                               "Something went wrong. Please check your details and try again."}
                           </p>
                         </div>
@@ -268,13 +272,13 @@ export default function BookingForm() {
                   <button
                     type="submit"
                     disabled={
-                      mutation.isPending ||
+                      isSubmitting ||
                       !form.bookingDate
                     }
                     className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     aria-label="Submit booking form"
                   >
-                    {mutation.isPending ? (
+                    {isSubmitting ? (
                       <>
                         <Loader2 className="w-5 h-5 animate-spin" />
                         Processing...

@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getRecentBookings } from "../../services/bookingService";
+import { useEffect } from "react";
+import { useData } from "../../contexts/DataContext";
 import {
   Calendar,
   Clock,
@@ -14,25 +14,23 @@ import {
 } from "lucide-react";
 
 export default function RecentBookings() {
-  // Enhanced query with caching and retry logic for better UX
-  const {
-    data: bookings,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["recentBookings"],
-    queryFn: getRecentBookings,
-    staleTime: 3 * 60 * 1000, // Cache data for 3 minutes to reduce API calls
-    retry: 3, // Retry failed requests 3 times before showing error
-    refetchInterval: 5 * 60 * 1000, // Auto-refresh every 5 minutes for real-time data
-  });
+  const { recentBookings, loading, errors, fetchRecentBookings } = useData();
 
-  // Handle both array and object responses from different API structures
-  const bookingList = Array.isArray(bookings) ? bookings : bookings?.data || [];
+  useEffect(() => {
+    fetchRecentBookings().catch(() => {});
+
+    const intervalId = window.setInterval(() => {
+      fetchRecentBookings({ force: true }).catch(() => {});
+    }, 5 * 60 * 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [fetchRecentBookings]);
+
+  const bookingList = recentBookings;
 
   // LOADING STATE
   // Professional loading spinner with proper accessibility
-  if (isLoading) {
+  if (loading.recentBookings) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh]">
         <div className="relative">
@@ -51,6 +49,7 @@ export default function RecentBookings() {
 
   // ERROR STATE
   // Clean error handling with retry functionality and user-friendly messaging
+  const error = errors.recentBookings;
   if (error) {
     return (
       <div className="min-h-[80vh]">

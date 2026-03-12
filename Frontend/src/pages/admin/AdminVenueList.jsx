@@ -1,33 +1,30 @@
 // src/pages/admin/AdminVenueList.jsx
-import { useQuery } from "@tanstack/react-query";
-import { getAdminVenues } from "../../services/venueService";
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useData } from "../../contexts/DataContext";
 import {
   Plus,
   Pencil,
   MapPin,
   Users,
-  Clock,
   IndianRupee,
   Building2,
   Loader2,
 } from "lucide-react";
 
 export default function AdminVenueList() {
-  // Enhanced query with caching and retry logic for better UX
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["adminVenues"],
-    queryFn: getAdminVenues,
-    staleTime: 5 * 60 * 1000, // Cache data for 5 minutes to reduce API calls
-    retry: 3, // Retry failed requests 3 times before showing error
-  });
+  const { adminVenues, loading, errors, fetchAdminVenues } = useData();
+
+  useEffect(() => {
+    fetchAdminVenues().catch(() => {});
+  }, [fetchAdminVenues]);
 
   // Sort venues by ID in ascending order for consistent display
-  const venues = (data?.data || []).sort((a, b) => a.id - b.id);
+  const venues = [...adminVenues].sort((a, b) => a.id - b.id);
 
   // LOADING STATE
   // Professional loading spinner with proper accessibility
-  if (isLoading) {
+  if (loading.adminVenues) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh]">
         <div className="relative">
@@ -46,6 +43,7 @@ export default function AdminVenueList() {
 
   // ERROR STATE
   // Clean error handling with retry functionality and user-friendly messaging
+  const error = errors.adminVenues;
   if (error) {
     return (
       <div className="min-h-[80vh]">

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { getMyBookings } from "../../services/bookingService";
+import { useEffect } from "react";
+import { useData } from "../../contexts/DataContext";
 import {
   Calendar,
   Clock,
@@ -13,21 +13,15 @@ import {
 } from "lucide-react";
 
 export default function MyBookings() {
-  const {
-    data: bookings,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["myBookings"],
-    queryFn: getMyBookings,
-    staleTime: 3 * 60 * 1000,
-    retry: 3,
-  });
+  const { myBookings, loading, errors, fetchMyBookings } = useData();
 
-  const bookingList = Array.isArray(bookings) ? bookings : bookings?.data || [];
-  console.log(bookingList);
+  useEffect(() => {
+    fetchMyBookings().catch(() => {});
+  }, [fetchMyBookings]);
 
-  if (isLoading) {
+  const bookingList = myBookings;
+
+  if (loading.myBookings) {
     return (
       <div className="flex flex-col justify-center items-center h-[80vh]">
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
@@ -36,6 +30,7 @@ export default function MyBookings() {
     );
   }
 
+  const error = errors.myBookings;
   if (error) {
     return (
       <div className="min-h-[80vh] max-w-7xl mx-auto px-4 py-16">
